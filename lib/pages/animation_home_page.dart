@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:staggered_animation_example/widgets/cupboard.dart';
 import 'package:staggered_animation_example/widgets/light_bulb_widget.dart';
+import 'package:staggered_animation_example/widgets/light_with_rod_widget.dart';
+import 'package:staggered_animation_example/widgets/table_widget.dart';
 
 class AnimationHomePage extends StatefulWidget {
   const AnimationHomePage({Key? key}) : super(key: key);
@@ -15,51 +15,99 @@ class _AnimationHomePageState extends State<AnimationHomePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
-  late Animation<double> _heightAnime;
-  late Animation<double> _rotateAnime;
-  late Tween<double> height1Tween;
-  late Tween<double> height2Tween;
-  late Tween<double> height3Tween;
-  late TweenSequence<double> heightTweenSequence;
-
+  late Animation<double> _cupboardHeightAnime;
+  late Animation<double> _cupboardRotateAnime;
+  // late Tween<double> _cupboardHeight1Tween;
+  // late Tween<double> _cupboardHeight2Tween;
+  // late Tween<double> _cupboardHeight3Tween;
+  // late TweenSequence<double> _cupboardHeightTweenSequence;
+  late Animation<Color?> _lightBulbColorAnim;
+  late Animation<double> _rotateLightBulbAnime;
+  late final Animation<double> _lightFadeAnime;
+  late final Animation<double> _cupboardFadeAnime;
+  late final Animation<double> _tableHeightAnmation;
+  late Animation<double> _tableRotateAnime;
+  late final Animation<double> _tableFadeAnime;
+  bool _isDrawer = true;
   @override
   void initState() {
     super.initState();
     _animationController =
         AnimationController(duration: const Duration(seconds: 10), vsync: this);
-    height1Tween = Tween<double>(
-      begin: 200,
-      end: 300,
-    );
 
-    height2Tween = Tween<double>(
-      begin: 300,
-      end: 280,
-    );
-    height3Tween = Tween<double>(
-      begin: 280,
-      end: 300,
-    );
-    heightTweenSequence = TweenSequence([
-      TweenSequenceItem(tween: height1Tween, weight: 2),
-      TweenSequenceItem(tween: height2Tween, weight: 2),
-      TweenSequenceItem(tween: height3Tween, weight: 1),
-    ]);
+    // CupBoard Animation
+    //=================================================================//
 
-    _heightAnime = heightTweenSequence.animate(
+    _cupboardHeightAnime = cupboardHeightTweenSequence.animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.3, curve: Curves.bounceIn),
+        curve: const Interval(0.0, 0.25, curve: Curves.bounceIn),
       ),
     );
-    _rotateAnime = CurvedAnimation(
+    _cupboardRotateAnime = CurvedAnimation(
       parent: _animationController,
       curve: const Interval(
-        0.7,
-        1.0,
+        0.25,
+        0.3,
         curve: Curves.elasticInOut,
       ),
     );
+
+    _cupboardFadeAnime = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.25, 0.3, curve: Curves.easeIn),
+    );
+
+//Table Animation
+//=================================================================//
+
+    _tableHeightAnmation = tableHeightTweenSequence.animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 0.55, curve: Curves.bounceIn),
+      ),
+    );
+    _tableRotateAnime = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(
+        0.55,
+        0.6,
+        curve: Curves.elasticInOut,
+      ),
+    );
+
+    _tableFadeAnime = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.55, 0.6, curve: Curves.easeIn),
+    );
+
+    //=================================================================//
+    // Light-Bulb Animation
+    _lightBulbColorAnim = bgColor.animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.6, 0.9, curve: Curves.easeIn)));
+
+    _rotateLightBulbAnime = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(
+        0.9,
+        1,
+        curve: Curves.elasticInOut,
+      ),
+    );
+
+    _lightFadeAnime = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.9, 1, curve: Curves.easeIn),
+    );
+
+    _animationController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    _animationController.repeat();
   }
 
   @override
@@ -74,42 +122,27 @@ class _AnimationHomePageState extends State<AnimationHomePage>
       appBar: AppBar(),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CupBoard(),
-            SizedBox(
-              width: 200,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 12,
-                    height: 200,
-                    color: Colors.black,
-                  ),
-                  Container(
-                    width: 150,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25),
-                      ),
-                      gradient: LinearGradient(
-                        stops: [0, 0.5, 0.5, 1],
-                        colors: [
-                          Colors.red,
-                          Colors.red,
-                          Colors.deepOrange,
-                          Colors.deepOrange
-                        ],
-                      ),
-                    ),
-                  ),
-                  LightBulbWidget()
-                ],
+            if (_animationController.value > 0.6 &&
+                _animationController.value <= 1)
+              LightWithRodWidget(
+                animationController: _animationController,
+                colorAnim: _lightBulbColorAnim,
+                rotationAnime: _rotateLightBulbAnime,
+                lightFadeAnime: _lightFadeAnime,
               ),
-            )
+            if (_animationController.value >= 0 &&
+                _animationController.value <= 0.3)
+              CupBoard(_animationController, _cupboardHeightAnime,
+                  _cupboardRotateAnime, _cupboardFadeAnime),
+            if (_animationController.value > 0.3 &&
+                _animationController.value <= 0.6)
+              TableWidget(
+                fadeAnimation: _tableFadeAnime,
+                heightAnimation: _tableHeightAnmation,
+                rotationAnimation: _tableRotateAnime,
+              )
           ],
         ),
       ),

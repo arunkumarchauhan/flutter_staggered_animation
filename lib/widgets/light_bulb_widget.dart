@@ -1,38 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:staggered_animation_example/widgets/light_painter.dart';
 
-class LightBulbWidget extends StatefulWidget {
-  const LightBulbWidget({
+class LightBulbWidget extends StatelessWidget {
+  const LightBulbWidget(
+    this._animationController,
+    this._colorAnim, {
     Key? key,
   }) : super(key: key);
-
-  @override
-  State<LightBulbWidget> createState() => _LightBulbWidgetState();
-}
-
-class _LightBulbWidgetState extends State<LightBulbWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<Color?> _colorAnim;
-  
-  @override
-  void initState() {
-    super.initState();
-    _animationController =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this);
-
-    _colorAnim = bgColor.animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeIn)));
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
+  final AnimationController _animationController;
+  final Animation<Color?> _colorAnim;
 
   @override
   Widget build(BuildContext context) {
